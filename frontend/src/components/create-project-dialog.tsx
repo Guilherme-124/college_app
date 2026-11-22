@@ -15,15 +15,16 @@ import { useProjects } from "@/context/project-context";
 
 
 
-/* 
+
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-}; */
+  project?: { id: string; nome: string; descricao: string | null };
+};
 
 
 
-export function CreateProjectDialog (open, onOpenChange, project) {
+export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
   const { createProject, editProject } = useProjects();
   const navigate = useNavigate();
 
