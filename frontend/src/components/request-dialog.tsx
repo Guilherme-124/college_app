@@ -75,7 +75,7 @@ function RequestForm({ title, initial, onSubmit, onClose }) {
   const [url, setUrl] = useState(initial?.url || "");
 
   const [timer, setTimer] = useState(String(initial?.intervalo_segundos || 300));
-  const [goodMs, setGo0odMs] = useState(String(initial?.meta_bom_ms || 300));
+  const [goodMs, setGoodMs] = useState(String(initial?.meta_bom_ms || 300));
   const [acceptableMs, setAcceptableMs] = useState(String(initial?.meta_aceitavel_ms || 700));
 
   const [jitter, setJitter] = useState(initial?.jitter ?? true);
@@ -192,7 +192,7 @@ function RequestForm({ title, initial, onSubmit, onClose }) {
         />
       </div>
 
-      <Tabs>
+      <Tabs defaultValue="geral">
         <TabsList>
           <TabsTrigger
             value="geral"
@@ -207,7 +207,7 @@ function RequestForm({ title, initial, onSubmit, onClose }) {
         </TabsList>
 
         <TabsContent
-          value="Geral"
+          value="geral"
           className="mt-4 grid min-h-64 content-start gap-4"
         >
           <div className="grid gap-2">
@@ -224,10 +224,10 @@ function RequestForm({ title, initial, onSubmit, onClose }) {
             </Select>
           </div>
 
-          <div>
+          <div className="flex items-center justify-between gap-4">
             <div>
               <Label>Jitter</Label>
-              <p>Espalha a execução aleatóriamente em até 20s</p>
+              <p className="text-sm text-muted-foreground">Espalha a execução aleatóriamente em até 20s</p>
             </div>
             <Switch 
               id="request-jitter"
@@ -241,7 +241,7 @@ function RequestForm({ title, initial, onSubmit, onClose }) {
             <div className="grid grid-cols-2 gap-2">
               <div className="grid gap-1">
                 <Label className="text-ms">Bom até</Label>
-                <Input type="number" value={goodMs} onChange={e => setGo0odMs(e.target.value)} required/>
+                <Input type="number" value={goodMs} onChange={e => setGoodMs(e.target.value)} required/>
               </div>
               <div className=" grid gap-1">
                 <Label className="text-ms">Aceitável até</Label>
