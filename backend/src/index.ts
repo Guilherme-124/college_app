@@ -6,6 +6,11 @@ import { startScheduler } from "./libs/scheduler.js";
 
 const app = express();
 
+app.use((req, _res, next) => {
+  console.log(req.method, req.url, "origin:", req.headers.origin);
+  next();
+});
+
 app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(clerkMiddleware());
 app.use(express.json({ limit: "10kb" }));
