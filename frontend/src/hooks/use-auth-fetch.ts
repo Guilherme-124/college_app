@@ -1,7 +1,7 @@
 import { useCallback } from "react";
 import { useAuth } from "@clerk/react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL;
 
 type Options = Omit<RequestInit, "headers"> & {headers?: Record<string, string>};
 

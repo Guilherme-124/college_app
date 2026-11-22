@@ -9,6 +9,11 @@ const app = express();
 app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(clerkMiddleware());
 app.use(express.json({ limit: "10kb" }));
+
+app.get("/health", (_req, res) => {
+  res.json({ ok: true })
+});
+
 app.use(apiRouter);
 
 const PORT = Number(process.env.PORT) || 3000;
