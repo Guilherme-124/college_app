@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { History as HistoryIcon, Plus, Trash2 } from "lucide-react";
+import { History as HistoryIcon, Pencil, Plus, Trash2 } from "lucide-react";
 import { RequestDialog } from "@/components/request-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -73,6 +73,7 @@ export function ProjectPage() {
 
   const [projectDelete, setProjectDelete] = useState(false);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
+  const [projectEdit, setProjectEdit] = useState(false);
 
 
   async function loadData() {
@@ -210,6 +211,17 @@ export function ProjectPage() {
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-2xl font-bold">{project.nome}</h1>
+          {canEdit && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="icon"
+              aria-label="Editar projeto"
+              onClick={() => setProjectEdit(true)}
+            >
+              <Pencil size={12}/>
+            </Button>
+          )}
           <p className="text-muted-foreground text-sm">{project.descricao}</p>
           {project.papel === "owner" &&
             <Button
