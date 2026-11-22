@@ -210,18 +210,20 @@ export function ProjectPage() {
       )}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold">{project.nome}</h1>
-          {canEdit && (
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Editar projeto"
-              onClick={() => setProjectEdit(true)}
-            >
-              <Pencil size={12}/>
-            </Button>
-          )}
+          <h1 className="text-2xl font-bold">
+            {project.nome}
+            {canEdit && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                aria-label="Editar projeto"
+                onClick={() => setProjectEdit(true)}
+              >
+                <Pencil size={12}/>
+              </Button>
+            )}
+          </h1>
           <p className="text-muted-foreground text-sm">{project.descricao}</p>
           {project.papel === "owner" &&
             <Button

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { Button } from "./ui/button";
 import { 
@@ -15,58 +15,73 @@ import { useProjects } from "@/context/project-context";
 
 
 
-
+/* 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-};
+}; */
 
 
 
-export function CreateProjectDialog({ open, onOpenChange }: Props) {
-  const { createProject } = useProjects();
+export function CreateProjectDialog (open, onOpenChange, project) {
+  const { createProject, editProject } = useProjects();
   const navigate = useNavigate();
 
   const [projectName, setPeojectName] = useState('');
   const [projectDescription, setProjectDescription] = useState("");
-  const [creating, setCreating] = useState(false);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
 
-  function handleOpenChange(next: boolean) {
+
+  useEffect(() => {
+    if (open) {
+      setPeojectName(project ? project.nome : "");
+      setProjectDescription(project ? project.descricao : "");
+      setError("");
+    }
+  }, [open, project]);
+
+
+/*   function handleOpenChange(next: boolean) {
     if (!next) {
       setPeojectName("");
       setProjectDescription("");
       setError("");
     }
     onOpenChange(next);
-  }
+  } */
 
 
-  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
+  async function handleSubmit(e) {
     e.preventDefault();
 
-    setCreating(true);
+    setSaving(true);
     setError("");
 
     try {
-      const project = await createProject(projectName, projectDescription);
-      handleOpenChange(false);
-      navigate(`/projects/${project.id}`);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
+      if (project) {
+        await editProject(project.id, projectName.trim(), projectDescription.trim());
+        onOpenChange(false);
+      } else {
+        const created = await createProject(projectName, projectDescription);
+        onOpenChange(false);
+        navigate(`/projects/${created.id}`);
+      }
+    } catch (error) {
+      setError(error.message || "Something went wrong");
     } finally {
-      setCreating(false);
+      setSaving(false);
     }
   }
 
   return (
-    <Dialog open={open} onOpenChange={handleOpenChange}>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md">
         <form onSubmit={handleSubmit} className="grid gap-4">
           <DialogHeader>
             <DialogTitle>
-              New Project
+              {project ? "Editar Projeto" : "Novo Projeto"}
             </DialogTitle>
           </DialogHeader>
           <div
@@ -101,14 +116,14 @@ export function CreateProjectDialog({ open, onOpenChange }: Props) {
             <Button
               type="button"
               variant="outline"
-              onClick={() => handleOpenChange(false)}
+              onClick={() => onOpenChange(false)}
             >
               Cancel
             </Button>
 
             <Button
               type="submit"
-              disabled={creating}
+              disabled={saving}
             >
               Create
             </Button>

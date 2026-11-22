@@ -68,10 +68,35 @@ export function ProjectsProvider({ children }) {
     setProjects((prev) => prev.filter((p) => p.id !== id));
   }
 
-  
+
+
+
+  async function editProject(id, nome, descricao) {
+    const response = await authFetch(`/projetos/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nome, descricao }),
+    });
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      throw new Error(data.error || "Não foi possivel editar o projeto");
+    }
+
+    setProjects((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, ...data.projeto } : p)),
+    );
+
+    return data.projeto;
+  }  
+
+
+
+
   return (
     <ProjectsContext.Provider 
-      value={{ projects, loading, createProject, deleteProject}}
+      value={{ projects, loading, createProject, deleteProject, editProject}}
     >
       {children}
     </ProjectsContext.Provider>

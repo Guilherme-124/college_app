@@ -49,20 +49,20 @@ export const createProjeto = async (req: Request, res: Response) => {
   if (!nomeTrim) {
     return res
       .status(400)
-      .json({ status: "fail", error: "Project name is required" });
+      .json({ status: "fail", error: "Nome é obrigatorio" });
   }
 
   if (nomeTrim.length > 100) {
     return res.status(400).json({
       status: "fail",
-      error: "Project name must have less than 101 characters",
+      error: "Nome deve ter no maximo 100 caracteres",
     });
   }
 
   if (descricaoTrim.length > 500) {
     return res.status(400).json({
       status: "fail",
-      error: "Description must have less than 501 characters",
+      error: "Descrição deve ter no maximo 500 caracteres",
     });
   }
 
@@ -145,5 +145,46 @@ export const deleteProjeto = async (req: Request, res: Response) => {
   res.json({ status: "success" });
 }
 
+
+
+
+
+export const editProjeto = async (req: Request, res: Response) => {
+  const { projectId } = req.params;
+
+  if (res.locals.papel !== "owner" && res.locals.papel !== "editor") {
+    return res
+      .status(403)
+      .json({ status: "fail", error: "Sem permissao para editar o projeto" });
+  }
+
+  const nome = String(req.body.nome).trim();
+
+  const descricao = String(req.body.descricao).trim();
+
+  if (!nome) {
+    return res.status(400).json({ status: "fail", error: "Nome é obrigatorio" });
+  }
+  if (nome.length > 100) {
+    return res.status(400).json({ status: "fail", error: "Nome deve ter no maximo 100 caracteres" });
+  }
+  if (descricao.length > 500) {
+    return res.status(400).json({ status: "fail", error: "Descrição deve ter no maximo 500 caracteres" });
+  }
+
+  const { data, error } = await supabase
+    .from("projetos")
+    .update({ nome, descricao: descricao || null })
+    .eq("id", projectId)
+    .select("id, nome, descricao, created_at")
+    .single();
+
+  if (error) {
+    console.error("Erro ao editar projeto:", error);
+    return res.status(500).json({ status: "fail", error: error.message });
+  }
+
+  res.json({ status: "success", projeto: data });
+};
 
 
