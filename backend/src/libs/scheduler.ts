@@ -1,6 +1,7 @@
 import nodeCron from "node-cron";
 import { supabase } from "./db.js";
 import { performCheck } from "../utils/perform-checks.js";
+import { sendEmail } from "../utils/send-email.js";
 
 
 
@@ -103,3 +104,43 @@ export function startScheduler() {
 
   console.log("scheduler ativo");
 }
+
+
+
+
+const escapeHtml = (s: string) =>
+  s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+async function notifyDown(
+  projetoId: string,
+  metodo: string,
+  url: string,
+  motivo: string,
+) {
+  try {
+    const { data: membros, error } = await supabase
+      .from("projeto_membros")
+      .select("usuarios(email)")
+      .eq("projeto_id", projetoId);
+
+    if (error) {
+      console.log("erro ao buscar membros para alerta:", error);
+      return;
+    }
+
+    const emails = (membros ?? [])
+      .map((m: any) => m.usuarios?.email)
+      .filter(Boolean) as string[];
+
+    await sendEmail(
+      emails,
+      `DOWN: ${metodo} ${url}`,
+      `<p><strong>${escapeHtml(metodo)} ${escapeHtml(url)}</strong> falhou ${FALHAS_DOWN} verificações seguidas.</p>
+       <p>Último erro: ${escapeHtml(motivo)}</p>`,
+    );
+  } catch (err) {
+    console.log("falha ao enviar alerta:", err);
+  }
+}
+
+
