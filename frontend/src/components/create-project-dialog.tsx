@@ -44,14 +44,6 @@ export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
   }, [open, project]);
 
 
-/*   function handleOpenChange(next: boolean) {
-    if (!next) {
-      setPeojectName("");
-      setProjectDescription("");
-      setError("");
-    }
-    onOpenChange(next);
-  } */
 
 
   async function handleSubmit(e) {

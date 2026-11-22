@@ -8,6 +8,9 @@ import {
 } from "../controllers/projetos.controller.js";
 import { checkRole } from "../middleware/require-project-role.js";
 
+
+
+
 export const projetosRoutes = Router();
 
 projetosRoutes.get("/", listProjetos);

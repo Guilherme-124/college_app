@@ -5,10 +5,12 @@ import { projetosRoutes } from "./projetos.routes.js";
 import { requisicoesRoutes } from "./requisicoes.routes.js";
 import { systemRoutes } from "./system.routes.js";
 
+
+
+
 export const apiRouter = Router();
 
 apiRouter.use(systemRoutes);
-
 
 apiRouter.use(
   "/projetos",

@@ -10,8 +10,8 @@ import { checkRole } from "../middleware/require-project-role.js";
 
 
 
-export const metricasRoutes = Router();
 
+export const metricasRoutes = Router();
 
 metricasRoutes.get("/:projectId/metricas", checkRole, getProjetoMetricas);
 metricasRoutes.get("/:projectId/recursos", checkRole, getProjetoRecursos);

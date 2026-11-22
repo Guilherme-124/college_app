@@ -7,8 +7,7 @@ import { Button } from "@/components/ui/button";
 import {
   ChartContainer,
   ChartTooltip,
-  ChartTooltipContent,
-  type ChartConfig,
+  ChartTooltipContent
 } from "@/components/ui/chart";
 import {
   Table,

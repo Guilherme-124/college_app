@@ -32,6 +32,7 @@ import {
   ChartTooltipContent,
   type ChartConfig
 } from "@/components/ui/chart";
+import { CreateProjectDialog } from "@/components/create-project-dialog";
 
 
 
@@ -493,6 +494,12 @@ export function ProjectPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CreateProjectDialog 
+        open={projectEdit}
+        onOpenChange={setProjectEdit}
+        project={project}
+      />
     </div>
   );
 }

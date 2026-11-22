@@ -4,12 +4,11 @@ import { clerkMiddleware } from "@clerk/express";
 import { apiRouter } from "./routes/index.js";
 import { startScheduler } from "./libs/scheduler.js";
 
+
+
+
 const app = express();
 
-/* app.use((req, _res, next) => {
-  console.log(req.method, req.url, "origin:", req.headers.origin);
-  next();
-}); */
 
 console.log("log");
 

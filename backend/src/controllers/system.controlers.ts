@@ -2,6 +2,7 @@ import type { Request, Response } from "express";
 import { supabase } from "../libs/db.js";
 
 
+
 export const checkDatabase = async (_req: Request, res: Response) => {
   const { error } = await supabase.from("usuarios").select("id").limit(1);
 

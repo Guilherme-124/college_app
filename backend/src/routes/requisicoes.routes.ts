@@ -8,8 +8,10 @@ import {
 } from "../controllers/requisicoes.controller.js";
 import { checkRole } from "../middleware/require-project-role.js";
 
-export const requisicoesRoutes = Router();
 
+
+
+export const requisicoesRoutes = Router();
 
 requisicoesRoutes.get("/:projectId/requisicoes", checkRole, listRequisicoes);
 requisicoesRoutes.post(
