@@ -18,7 +18,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-/*   useSidebar, */
+  useSidebar,
 } from "@/components/ui/sidebar";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
 import { useProjects } from "@/context/project-context";
@@ -28,7 +28,7 @@ import { useProjects } from "@/context/project-context";
 
 export function AppSidebar() {
   const { projects } = useProjects();
-/*   const { isMobile, setOpenMobile } = useSidebar(); */
+  const { isMobile, setOpenMobile } = useSidebar();
   const navigate = useNavigate();
   const [OpenCreate, setOpenCreate] = useState(false);
   const { pathname } = useLocation();
@@ -37,7 +37,7 @@ export function AppSidebar() {
   const currentProject = projects.find((p) => p.id === match?.params.projectId);
 
 
-/* 
+
 function handleNavigate(path: string) {
   navigate(path);
   if (isMobile) setOpenMobile(false);
@@ -47,7 +47,7 @@ function handleNavigate(path: string) {
   function handleSelect(id: string) {
     navigate(`/projects/${id}`);
     if (isMobile) setOpenMobile(false);
-  }; */
+  };
 
   return (
     <>

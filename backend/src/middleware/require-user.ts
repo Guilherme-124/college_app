@@ -12,6 +12,10 @@ export const requireUser = async (
   res: Response,
   next: NextFunction,
 ) => {
+  if (req.method === "OPTIONS") {
+    return next();
+  }
+
   const { userId } = getAuth(req);
 
   if (!userId) {

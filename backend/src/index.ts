@@ -11,7 +11,7 @@ const app = express();
   next();
 }); */
 
-console.log("backend aqui");
+console.log("log");
 
 app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(clerkMiddleware());
