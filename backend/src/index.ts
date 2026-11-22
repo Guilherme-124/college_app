@@ -6,10 +6,12 @@ import { startScheduler } from "./libs/scheduler.js";
 
 const app = express();
 
-app.use((req, _res, next) => {
+/* app.use((req, _res, next) => {
   console.log(req.method, req.url, "origin:", req.headers.origin);
   next();
-});
+}); */
+
+console.log("backend aqui")
 
 app.use(cors({ origin: process.env.FRONTEND_URL }));
 app.use(clerkMiddleware());
