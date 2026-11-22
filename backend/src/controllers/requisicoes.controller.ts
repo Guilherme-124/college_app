@@ -5,6 +5,10 @@ import { formatURL } from "../utils/format-url.js";
 
 
 
+
+const BODY_MAX = 4000;
+const METODOS_SEM_BODY = ["GET", "HEAD"];
+
 export const createRequisicao = async (req: Request, res: Response) => {
   const { projectId } = req.params;
   const body = req.body;
@@ -15,6 +19,14 @@ export const createRequisicao = async (req: Request, res: Response) => {
   if (!metodo || !["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"].includes(metodo)) {
     return res.status(400).json({ status: "fail", error: "metodo invalido" });
   }
+
+
+  const bodyRaw = String(body.body);
+  if (bodyRaw.length > BODY_MAX) {
+    return res.status(400).json({ status: "fail", error: `body passou do limite, máximo ${BODY_MAX} caracteres`});
+  }
+
+  const requestBody = METODOS_SEM_BODY.includes(metodo) || !bodyRaw.trim() ? null : bodyRaw;
 
   const rawUrl = body.url?.trim();
   if (!rawUrl) return res.status(400).json({ status: "fail", error: "URL é obrigatoria" });
@@ -74,6 +86,7 @@ export const createRequisicao = async (req: Request, res: Response) => {
       nome,
       metodo,
       headers,
+      body: requestBody,
       intervalo_segundos: intervalo,
       meta_bom_ms: metaBom,
       meta_aceitavel_ms: metaAceitavel,
@@ -106,7 +119,7 @@ export const editRequisicao = async (req: Request, res: Response) => {
 
   const { data: found } = await supabase
     .from("requisicoes")
-    .select("id, url_id, urls!inner(projeto_id)")
+    .select("id, url_id, metodo, urls!inner(projeto_id)")
     .eq("id", requestId)
     .eq("urls.projeto_id", projectId)
     .maybeSingle();
@@ -136,12 +149,28 @@ export const editRequisicao = async (req: Request, res: Response) => {
     return res.status(400).json({ status: "fail", error: "intervalo nao suportado" });
   }
 
+    const metodoFinal: string = body.metodo?.toUpperCase() || found.metodo;
+
+  let requestBody: string | null | undefined = undefined;
+
+  if (typeof body.body === "string") {
+    if (body.body.length > BODY_MAX) {
+      return res.status(400).json({ status: "fail", error: `body muito grande, maximo ${BODY_MAX} caracteres` });
+    }
+    requestBody = body.body.trim() ? body.body : null;
+  }
+
+  if (METODOS_SEM_BODY.includes(metodoFinal)) {
+    requestBody = null;
+  }
+
   const { data: updated, error: updateErr } = await supabase
     .from("requisicoes")
     .update({
       nome: body.nome || undefined,
       metodo: body. metodo?.toUpperCase() || undefined,
       headers: body.headers || undefined,
+      body: requestBody,
       intervalo_segundos: body.intervalo_segundos || undefined,
       meta_bom_ms: body.meta_bom_ms || undefined,
       meta_aceitavel_ms: body.meta_aceitavel_ms || undefined,

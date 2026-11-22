@@ -118,7 +118,7 @@ export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
               type="submit"
               disabled={saving}
             >
-              Create
+              {project ? "Salvar" : "Criar"}
             </Button>
           </DialogFooter>
         </form>
