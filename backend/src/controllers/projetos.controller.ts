@@ -59,7 +59,7 @@ export const createProjeto = async (req: Request, res: Response) => {
     });
   }
 
-  if (descricaoTrim.length > 500) {
+  if (descricaoTrim && descricaoTrim.length > 500) {
     return res.status(400).json({
       status: "fail",
       error: "Descrição deve ter no maximo 500 caracteres",

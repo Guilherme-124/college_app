@@ -42,13 +42,14 @@ export function ProjectsProvider({ children }) {
         body: JSON.stringify({nome, descricao})
       });
 
-      const data = await response.json();
+      const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) throw new Error("Não foi possivel criar projeto");
+      if (!response.ok) throw new Error(data.error || "Não foi possivel criar projeto");
 
-      setProjects([data.projeto, ...projects]);
+      const newProject = { ...data.projeto, papel: data.projeto?.papel ?? "owner" };
+      setProjects((prev) => [data.projeto, ...prev]);
 
-      return data.projeto
+      return newProject;
     } catch (error) {
       console.log("Erro ao criar projeto:", error);
     }

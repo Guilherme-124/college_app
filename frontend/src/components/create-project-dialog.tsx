@@ -57,9 +57,10 @@ export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
         await editProject(project.id, projectName.trim(), projectDescription.trim());
         onOpenChange(false);
       } else {
-        const created = await createProject(projectName, projectDescription);
+        const created = await createProject(projectName.trim(), projectDescription.trim() || null);
         onOpenChange(false);
-        navigate(`/projects/${created.id}`);
+        
+        if (created?.id) navigate(`/projects/${created.id}`);
       }
     } catch (error) {
       setError(error.message || "Something went wrong");

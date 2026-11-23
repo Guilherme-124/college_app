@@ -2,9 +2,6 @@ import type { Request, Response } from "express";
 import { supabase } from "../libs/db.js";
 import { isUuid } from "../middleware/require-project-role.js";
 import { formatURL } from "../utils/format-url.js";
-import { stat } from "node:fs";
-import { error } from "node:console";
-import { url } from "node:inspector";
 
 
 
