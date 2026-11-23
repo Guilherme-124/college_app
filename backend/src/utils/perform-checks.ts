@@ -16,6 +16,7 @@ type CheckInput = {
   method: string;
   headers: Record<string, string>;
   timeoutMs: number;
+  body?: string | null;
 };
 
 
@@ -63,9 +64,12 @@ export async function performCheck({
   method,
   headers,
   timeoutMs,
+  body
 }: CheckInput): Promise<CheckOutcome> {
   try {
     await assertPublicHost(url);
+
+      const hasBody = !!body && !["GET", "HEAD"].includes(method.toUpperCase());
 
     const startedAt = performance.now();
 
@@ -73,6 +77,7 @@ export async function performCheck({
       url,
       method,
       headers,
+      data: hasBody ? body : undefined,
       timeout: timeoutMs,
       maxRedirects: 0,
       responseType: "stream",

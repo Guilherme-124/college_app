@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router";
-import { History as HistoryIcon, Pencil, Plus, Trash2 } from "lucide-react";
+import { History as HistoryIcon, UserPlus, Pencil, Plus, Trash2 } from "lucide-react";
 import { RequestDialog } from "@/components/request-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,6 +33,8 @@ import {
   type ChartConfig
 } from "@/components/ui/chart";
 import { CreateProjectDialog } from "@/components/create-project-dialog";
+import { InviteDialog } from "@/components/invite-dialog";
+
 
 
 
@@ -75,6 +77,8 @@ export function ProjectPage() {
   const [projectDelete, setProjectDelete] = useState(false);
   const [isDeletingProject, setIsDeletingProject] = useState(false);
   const [projectEdit, setProjectEdit] = useState(false);
+
+  const [inviteOpen, setInviteOpen] = useState(false);
 
 
   async function loadData() {
@@ -235,9 +239,24 @@ export function ProjectPage() {
               excluir projeto
             </Button>}
         </div>
-        {canEdit && (
-          <Button onClick={() => setCreateOpen(true)}><Plus className="mr-2 h-4 w-4" /> Nova Requisição</Button>
-        )}
+
+        <div className="flex gap-2">
+          {project.papel === "owner" && (
+            <Button 
+              variant="outline" 
+              onClick={() => setInviteOpen(true)}
+            >
+              <UserPlus className="mr-2 h-4 w-4" /> Convidar
+            </Button>
+          )}
+          {canEdit && (
+            <Button 
+              onClick={() => setCreateOpen(true)}
+            >
+              <Plus className="mr-2 h-4 w-4" /> Nova Requisição
+            </Button>
+          )}
+        </div>
       </div>
 
       <div className="flex justify-between items-center pt-4">
@@ -499,6 +518,12 @@ export function ProjectPage() {
         open={projectEdit}
         onOpenChange={setProjectEdit}
         project={project}
+      />
+      
+      <InviteDialog
+        open={inviteOpen}
+        onOpenChange={setInviteOpen}
+        projectId={projectId}
       />
     </div>
   );

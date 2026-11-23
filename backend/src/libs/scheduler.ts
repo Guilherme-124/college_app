@@ -5,6 +5,7 @@ import { sendEmail } from "../utils/send-email.js";
 
 
 
+
 const FALHAS_DOWN = 3;
 const SUCESSOS_UP = 2;
 
@@ -21,7 +22,7 @@ export function startScheduler() {
 
       const { data: requests, error } = await supabase
         .from("requisicoes")
-        .select("id, metodo, headers, intervalo_segundos, timeout_ms, estado, jitter, urls(url)")
+        .select("id, metodo, headers, body, intervalo_segundos, timeout_ms, estado, jitter, urls(url)")
         .eq("ativo", true)
         .or(`proxima_execucao.is.null,proxima_execucao.lte.${tick.toISOString()}`);
 
@@ -43,6 +44,7 @@ export function startScheduler() {
             url: url,
             method: req.metodo,
             headers: req.headers || {},
+            body: req.body,
             timeoutMs: req.timeout_ms ?? 10000,
           });
           
@@ -108,8 +110,10 @@ export function startScheduler() {
 
 
 
+
 const escapeHtml = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
 
 async function notifyDown(
   projetoId: string,
@@ -128,16 +132,39 @@ async function notifyDown(
       return;
     }
 
-    const emails = (membros ?? [])
-      .map((m: any) => m.usuarios?.email)
-      .filter(Boolean) as string[];
+    const ids = (membros ?? []).map((m: any) => m.usuario_id);
 
-    await sendEmail(
-      emails,
-      `DOWN: ${metodo} ${url}`,
-      `<p><strong>${escapeHtml(metodo)} ${escapeHtml(url)}</strong> falhou ${FALHAS_DOWN} verificações seguidas.</p>
-       <p>Último erro: ${escapeHtml(motivo)}</p>`,
-    );
+    if (ids.length === 0) return;
+
+    const { data: usuarios } = await supabase
+      .from("usuarios")
+      .select("email")
+      .in("id", ids);
+
+
+    const emails = [
+      ...new Set((usuarios ?? []).map((u: any) => u.email).filter(Boolean))
+    ] as string[];
+
+
+    const { data: projeto } = await supabase
+      .from("projetos")
+      .select("nome")
+      .eq("id", projetoId)
+      .maybeSingle();
+
+    const nomeProjeto = projeto?.nome ?? "projeto";
+    const base = process.env.FRONTEND_URL ?? "";
+    const link = base ? `<p><a href="${base}/projects/${projetoId}">Abrir o projeto</a></p>` : "";
+
+    const assunto = `[${nomeProjeto}] DOWN: ${metodo} ${url}`;
+    const html = `<p><strong>${escapeHtml(metodo)} ${escapeHtml(url)}</strong> falhou
+        ${FALHAS_DOWN} verificações seguidas no projeto <strong>${escapeHtml(nomeProjeto)}</strong>.</p>
+      <p>Último erro: ${escapeHtml(motivo)}</p>
+      ${link}`;
+
+
+    await Promise.all(emails.map((email) => sendEmail([email], assunto, html)))
   } catch (err) {
     console.log("falha ao enviar alerta:", err);
   }

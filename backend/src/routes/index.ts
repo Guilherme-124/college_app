@@ -4,6 +4,7 @@ import { metricasRoutes } from "./metricas.routes.js";
 import { projetosRoutes } from "./projetos.routes.js";
 import { requisicoesRoutes } from "./requisicoes.routes.js";
 import { systemRoutes } from "./system.routes.js";
+import { convitesRoutes } from "./convites.routes.js";
 
 
 
@@ -19,3 +20,10 @@ apiRouter.use(
   requisicoesRoutes,
   metricasRoutes,
 );
+
+apiRouter.use(
+  "/convites", 
+  requireUser, 
+  convitesRoutes
+);
+

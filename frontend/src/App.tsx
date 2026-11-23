@@ -7,6 +7,10 @@ import { ProjectsProvider } from "@/context/project-context";
 import { ProjectPage } from "@/pages/project-page";
 import { ProjectsStatusTable } from "@/pages/projects-page";
 import { RequestHistoryPage } from "@/pages/request-history-page";
+import { AcceptInvitePage } from "@/pages/invite-page";
+
+
+
 
 
 function Home() {
@@ -55,6 +59,7 @@ function App() {
                     element={<RequestHistoryPage />}
                   />
                   <Route path="*" element={<Home />} />
+                  <Route path="/convite/:token" element={<AcceptInvitePage />} />
                 </Routes>
               </main>
             </SidebarInset>
