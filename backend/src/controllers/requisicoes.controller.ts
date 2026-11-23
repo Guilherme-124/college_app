@@ -130,8 +130,8 @@ export const editRequisicao = async (req: Request, res: Response) => {
   if (!found) return res.status(404).json({ status: "fail", error: "Request nao encontrado"});
 
   
-  if (body.metodo) {
-    const m = body.metodo.toUpperCase();
+  if (body.metodo !== undefined) {
+    const m = String(body.metodo).toUpperCase();
     
     if(!["GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"].includes(m)) {
       return res.status(400).json({ status: "fail", error: "metodo invalido" });
@@ -176,33 +176,32 @@ export const editRequisicao = async (req: Request, res: Response) => {
     try {
       new URL(urlFormatada);
     } catch {
-      res.status(400).json({ status: "fail", error: "url inválido" });
+      return res.status(400).json({ status: "fail", error: "url inválido" });
     }
-  }
-
-  const { data: existingUrl } = await supabase
-    .from("urls")
-    .select("id")
-    .eq("projeto_id", projectId)
-    .eq("url", urlFormatada)
-    .limit(1);
-
-  if (existingUrl?.[0]?.id) {
-    novoUrlId = existingUrl[0].id;
-  } else {
-    const { data: createdUrl, error: urlErr } = await supabase
+    const { data: existingUrl } = await supabase
       .from("urls")
-      .insert({
-        projeto_id: projectId,
-        url: urlFormatada,
-        created_by: res.locals.usuario.id,
-      })
       .select("id")
-      .single();
+      .eq("projeto_id", projectId)
+      .eq("url", urlFormatada)
+      .limit(1);
 
-    if (urlErr) return res.status(500).json({ status: "fail", error: urlErr.message });
+    if (existingUrl?.[0]?.id) {
+      novoUrlId = existingUrl[0].id;
+    } else {
+      const { data: createdUrl, error: urlErr } = await supabase
+        .from("urls")
+        .insert({
+          projeto_id: projectId,
+          url: urlFormatada,
+          created_by: res.locals.usuario.id,
+        })
+        .select("id")
+        .single();
 
-    novoUrlId = createdUrl.id;
+      if (urlErr) return res.status(500).json({ status: "fail", error: urlErr.message });
+
+      novoUrlId = createdUrl.id;
+    }
   }
 
   let newName;
@@ -220,8 +219,8 @@ export const editRequisicao = async (req: Request, res: Response) => {
   const { data: updated, error: updateErr } = await supabase
     .from("requisicoes")
     .update({
-      url: novoUrlId,
-      nome: body.nome || undefined,
+      url_id: novoUrlId,
+      nome: newName || undefined,
       metodo: body. metodo?.toUpperCase() || undefined,
       headers: body.headers || undefined,
       body: requestBody,
@@ -236,6 +235,18 @@ export const editRequisicao = async (req: Request, res: Response) => {
     .single();
 
   if (updateErr) return res.status(500).json({ status: "fail", error: updateErr.message });
+
+
+  if (novoUrlId && novoUrlId !== found.url_id) {
+    const { count } = await supabase
+      .from("requisicoes")
+      .select("id", { count: "exact", head: true })
+      .eq("url_id", found.url_id);
+
+    if (count === 0) {
+      await supabase.from("urls").delete().eq("id", found.url_id);
+    }
+  }
 
   res.json({ status: "success", requisicao: updated });
 }
