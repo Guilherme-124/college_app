@@ -35,24 +35,20 @@ export function ProjectsProvider({ children }) {
 
 
   async function createProject(nome, descricao) {
-    try {
-      const response = await authFetch("/projetos", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({nome, descricao})
-      });
+    const response = await authFetch("/projetos", {
+      method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({nome, descricao})
+    });
 
-      const data = await response.json().catch(() => ({}));
+    const data = await response.json().catch(() => ({}));
 
-      if (!response.ok) throw new Error(data.error || "Não foi possivel criar projeto");
+    if (!response.ok) throw new Error(data.error || "Não foi possivel criar projeto");
 
-      const newProject = { ...data.projeto, papel: data.projeto?.papel ?? "owner" };
-      setProjects((prev) => [data.projeto, ...prev]);
+    const newProject = { ...data.projeto, papel: data.projeto?.papel ?? "owner" };
+    setProjects((prev) => [newProject, ...prev]);
 
-      return newProject;
-    } catch (error) {
-      console.log("Erro ao criar projeto:", error);
-    }
+    return newProject;
   }
 
 

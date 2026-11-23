@@ -59,7 +59,7 @@ export const createProjeto = async (req: Request, res: Response) => {
     });
   }
 
-  if (descricaoTrim && descricaoTrim.length > 500) {
+  if (descricaoTrim !== null && descricaoTrim.length > 500) {
     return res.status(400).json({
       status: "fail",
       error: "Descrição deve ter no maximo 500 caracteres",
@@ -68,7 +68,7 @@ export const createProjeto = async (req: Request, res: Response) => {
 
   const { data, error } = await supabase
     .from("projetos")
-    .insert({ nome, descricao, owner_id: res.locals.usuario.id })
+    .insert({ nome: nomeTrim, descricao: descricaoTrim, owner_id: res.locals.usuario.id })
     .select("id, nome, descricao, created_at")
     .single();
 
@@ -158,9 +158,9 @@ export const editProjeto = async (req: Request, res: Response) => {
       .json({ status: "fail", error: "Sem permissao para editar o projeto" });
   }
 
-  const nome = String(req.body.nome).trim();
+  const nome = typeof req.body.nome === "string" ? req.body.nome.trim() : '';
 
-  const descricao = String(req.body.descricao).trim();
+  const descricao = typeof req.body.descricao === "string" ? req.body.descricao.trim() : '';
 
   if (!nome) {
     return res.status(400).json({ status: "fail", error: "Nome é obrigatorio" });

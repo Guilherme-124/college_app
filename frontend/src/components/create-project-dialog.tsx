@@ -59,7 +59,7 @@ export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
       } else {
         const created = await createProject(projectName.trim(), projectDescription.trim() || null);
         onOpenChange(false);
-        
+
         if (created?.id) navigate(`/projects/${created.id}`);
       }
     } catch (error) {
@@ -81,7 +81,7 @@ export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
           <div
             className="grid gap-2"
           >
-            <Label htmlFor="project-name">Project name</Label>
+            <Label htmlFor="project-name">Nome do projeto</Label>
             <Input
               id="project-name"
               value={projectName}
@@ -94,7 +94,7 @@ export function CreateProjectDialog ({ open, onOpenChange, project }: Props) {
           <div
             className="grid gap-2"
           >
-            <Label htmlFor="project-description">Project Description</Label>
+            <Label htmlFor="project-description">Descrição do projeto</Label>
             <Textarea
               id="project-description"
               value={projectDescription}
