@@ -138,6 +138,8 @@ export const editRequisicao = async (req: Request, res: Response) => {
   if (body.url) {
     const url = formatURL(body.url.trim());
     
+    if (!url) return res.status(400).json({ status: "fail", error: "url é obrigatória"})
+
     try {
       new URL(url);
     } catch {
@@ -164,9 +166,38 @@ export const editRequisicao = async (req: Request, res: Response) => {
     requestBody = null;
   }
 
+  let novoUrlId;
+  let urlFormatada;
+
+  const { data: existingUrl } = await supabase
+    .from("urls")
+    .select("id")
+    .eq("projeto_id", projectId)
+    .eq("url", urlFormatada)
+    .limit(1);
+
+  if (existingUrl?.[0]?.id) {
+    novoUrlId = existingUrl[0].id;
+  } else {
+    const { data: createdUrl, error: urlErr } = await supabase
+      .from("urls")
+      .insert({
+        projeto_id: projectId,
+        url: urlFormatada,
+        created_by: res.locals.usuario.id,
+      })
+      .select("id")
+      .single();
+
+    if (urlErr) return res.status(500).json({ status: "fail", error: urlErr.message });
+
+    novoUrlId = createdUrl.id;
+  }
+
   const { data: updated, error: updateErr } = await supabase
     .from("requisicoes")
     .update({
+      url: novoUrlId,
       nome: body.nome || undefined,
       metodo: body. metodo?.toUpperCase() || undefined,
       headers: body.headers || undefined,
