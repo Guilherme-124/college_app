@@ -2,6 +2,9 @@ import type { Request, Response } from "express";
 import { supabase } from "../libs/db.js";
 import { isUuid } from "../middleware/require-project-role.js";
 import { formatURL } from "../utils/format-url.js";
+import { stat } from "node:fs";
+import { error } from "node:console";
+import { url } from "node:inspector";
 
 
 
@@ -135,17 +138,6 @@ export const editRequisicao = async (req: Request, res: Response) => {
     }
   }
 
-  if (body.url) {
-    const url = formatURL(body.url.trim());
-    
-    if (!url) return res.status(400).json({ status: "fail", error: "url é obrigatória"})
-
-    try {
-      new URL(url);
-    } catch {
-      return res.status(400).json({ status: "fail", error: "url invalido" });
-    }
-  }
 
   if (body.intervalo_segundos && ![60, 300, 600].includes(body.intervalo_segundos)) {
     return res.status(400).json({ status: "fail", error: "intervalo nao suportado" });
@@ -168,6 +160,25 @@ export const editRequisicao = async (req: Request, res: Response) => {
 
   let novoUrlId;
   let urlFormatada;
+
+  if (body.url !== undefined) {
+    if (typeof body.url !== "string") {
+      return res.status(400).json({ status: "fail", error: "url inválido" });
+    }
+
+    const rawUrl = body.url.trim();
+    if (!rawUrl) {
+      return res.status(400).json({ status: "fail", error: "url é obrigatória" });
+    }
+
+    urlFormatada = formatURL(rawUrl);
+
+    try {
+      new URL(urlFormatada);
+    } catch {
+      res.status(400).json({ status: "fail", error: "url inválido" });
+    }
+  }
 
   const { data: existingUrl } = await supabase
     .from("urls")
@@ -193,6 +204,18 @@ export const editRequisicao = async (req: Request, res: Response) => {
 
     novoUrlId = createdUrl.id;
   }
+
+  let newName;
+  if (typeof body.nome === "string" && body.nome.trim()) {
+    newName = body.nome.trim().slice(0, 100);
+  } else if (body.metodo || urlFormatada) {
+    const url = urlFormatada ?? (await getCurrUrl(found.url_id));
+
+    if (url) {
+      newName = `${metodoFinal} ${url}`.slice(0, 100);
+    }
+  }
+  
 
   const { data: updated, error: updateErr } = await supabase
     .from("requisicoes")
@@ -307,3 +330,14 @@ export const getRequisicao = async (req: Request, res: Response) => {
   }
 };
 
+
+
+async function getCurrUrl(urlId: string): Promise<string | null> {
+  const { data } = await supabase
+    .from("urls")
+    .select("url")
+    .eq("id", urlId)
+    .maybeSingle();
+
+  return data?.url ?? null;
+}
