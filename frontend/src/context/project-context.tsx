@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useContext, useEffect, useState, useCallback } from "react";
 import { useAuthFetch } from "@/hooks/use-auth-fetch";
 
 
@@ -14,24 +14,27 @@ export function ProjectsProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
 
-  useEffect(() => {
-    async function loadProjects() {
-      try {
-        const response = await authFetch("/projetos");
+const loadProjects = useCallback(async () => {
+  try {
+    const response = await authFetch("/projetos");
 
-        if (!response.ok) throw new Error("Erro ao carregar projetos");
+    if (!response.ok) throw new Error("Erro ao carregar projetos");
 
-        const data = await response.json();
-        setProjects(data);
-      } catch (error) {
-        console.log(error)
-      } finally {
-        setLoading(false);
-      }
-    }
+    const data = await response.json();
+    setProjects(data);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    setLoading(false);
+  }
+}, [authFetch]);
 
-    loadProjects();
-  }, [authFetch]);
+
+
+useEffect(() => {
+  loadProjects();
+}, [loadProjects]);
+
 
 
   async function createProject(nome, descricao) {
@@ -93,7 +96,7 @@ export function ProjectsProvider({ children }) {
 
   return (
     <ProjectsContext.Provider 
-      value={{ projects, loading, createProject, deleteProject, editProject}}
+      value={{ projects, loading, createProject, deleteProject, editProject, reloadProjects: loadProjects}}
     >
       {children}
     </ProjectsContext.Provider>
